@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Customer from "./components/Customer"
 import './App.css';
+import axios from 'axios';
 import Paper from '@material-ui/core/Paper';
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
@@ -12,7 +13,7 @@ import {withStyles} from '@material-ui/core/styles';
 const styles = theme => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing.unit * 3,
+    marginTop: theme.spacing(3),
     overflowX: 'auto'
   },
   table: {
@@ -21,34 +22,28 @@ const styles = theme => ({
 })
 
 
+class App extends Component {
 
-const customers = [{
-  'id' : 1,
-  'image' : 'https://placeimg.com/64/64/1',
-  'name' : '나동빈',
-  'birthday' : '961212',
-  'gender' : '남자',
-  'job' : '대학생'
-},
-{
-  'id' : 2,
-  'image' : 'https://placeimg.com/64/64/2',
-  'name' : '홍길동',
-  'birthday' : '900202',
-  'gender' : '남자',
-  'job' : '회사원'
-},
-{
-  'id' : 3,
-  'image' : 'https://placeimg.com/64/64/3',
-  'name' : '이재혁',
-  'birthday' : '960409',
-  'gender' : '남자',
-  'job' : '디자이너'
-},
-]
-function App(props) {
-    const { classes } = props;
+  state = {
+    customers: ""
+  }
+
+  callApi = async () => {
+    try {
+      const response =  await axios.get('/api/customers');
+      this.setState({
+        customers: response.data
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  
+  componentDidMount() {
+    this.callApi();
+  }
+  render() {
+    const { classes } = this.props;
     return (
       <Paper className={classes.root}>
         <Table className={classes.table}>
@@ -63,13 +58,14 @@ function App(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            { customers.map( c => {
+            {this.state.customers ? this.state.customers.map( c => { 
               return (<Customer key={c.id} id={c.id} image={c.image} name={c.name} birthday={c.birthday} gender={c.gender} job={c.job}/>);
-            }) }
+            }) :''}
           </TableBody>
         </Table>   
       </Paper>         
     );
+  }
   }
 
 export default withStyles(styles)(App);
